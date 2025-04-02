@@ -125,7 +125,7 @@ Hooks included:
 Run manually:
 
 ```bash
-pre-commit run --all-files
+pre-commit run --all-files --hook-stage manual
 ```
 
 ---

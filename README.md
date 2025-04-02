@@ -1,3 +1,4 @@
+
 # 🐍 Python Clean Architecture Template
 
 This is a plug-and-play Python project template that follows **SOLID principles** and supports deployment as either a **web service** (e.g., with FastAPI) or an **AWS Lambda function**. Just drop your service files into the right folder, and you're good to go.
@@ -29,13 +30,52 @@ source .venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 ```
 
-### 4. Add your service logic
+### 4. Load environment variables
 
-#### 🔌 Web service (e.g., REST API with FastAPI or Flask):
+Create a `.env` file from the example:
 
-Put your service file in the `services/web/` folder.
+```bash
+cp .env.example .env
+```
 
-Example:
+Inside `.env`, set the environment:
+
+```env
+ENV=dev
+```
+
+---
+
+## 🧠 Architecture Overview
+
+```
+.
+├── .github/workflows/    # GitHub Actions (CI/CD)
+├── configs/              # Configs (dev/prod/env)
+├── core/                 # Interfaces, business logic, models
+├── infrastructure/       # AWS, web framework integrations
+├── services/             # Plug-and-play service files
+│   ├── web/              # Drop-in web API logic here
+│   └── lambda/           # Lambda entrypoint
+├── main.py               # Web app entrypoint (auto-loads services)
+├── tests/                # Unit tests
+├── .env.example          # Sample environment file
+├── .pre-commit-config.yaml  # Auto-format/lint hooks
+├── Dockerfile            # Optional container support
+└── Makefile              # Dev command shortcuts
+```
+
+- **SOLID Principles:** Core logic is modular and decoupled from frameworks
+- **Plug-and-Play:** Just drop a service into `services/web/` and it’ll be auto-registered
+- **Platform-Ready:** Works as both a local app and an AWS Lambda
+
+---
+
+## 🔌 How Services Are Loaded
+
+### Web Services (`services/web/`)
+
+Each file should have a `register_routes(app)` function:
 
 ```python
 # services/web/my_api_service.py
@@ -45,46 +85,25 @@ def register_routes(app):
         return {"message": "Hello from my service!"}
 ```
 
-#### ☁️ AWS Lambda:
-
-Use the `services/lambda/handler.py` and inject your logic there, or dynamically load from `core/` modules.
-
----
-
-## 🧠 Architecture Overview
-
-```
-.
-├── configs/             # Configs (dev/prod/env)
-├── core/                # Interfaces, business logic, models
-├── infrastructure/      # AWS, web framework integrations
-├── services/            # Plug-and-play service files
-│   ├── web/             # Drop-in web API logic here
-│   └── lambda/          # Lambda entrypoint
-├── main.py              # Web app entrypoint
-```
-
-- **SOLID Principles:** Core logic is modular and decoupled from frameworks
-- **Plug-and-Play:** Just drop a service into `services/web/` and it'll be auto-registered
-- **Flexible Deployment:** Works locally or in the cloud (e.g., AWS Lambda)
+When you run `main.py`, all `.py` files in `services/web/` are discovered and registered automatically.
 
 ---
 
 ## 🛠️ Run Locally (Web Server)
 
-Make sure you’ve added a file like `my_api_service.py` under `services/web/`.
-
-Then start the app:
+Make sure you’ve added at least one service in `services/web/`, then run:
 
 ```bash
 python main.py
 ```
 
+The app will launch using FastAPI with routes auto-registered from your services.
+
 ---
 
 ## 🧪 Testing
 
-Tests go in the `tests/` folder. To run them:
+Tests go in the `tests/` folder. To run:
 
 ```bash
 pytest
@@ -92,34 +111,112 @@ pytest
 
 ---
 
-## 📦 Deployment
+## 🧼 Pre-Commit Hooks
 
-### As an AWS Lambda:
+This template uses [`pre-commit`](https://pre-commit.com/) to keep code clean.
 
-- Use the `services/lambda/handler.py` as your Lambda entrypoint.
-- Package your code with dependencies (e.g., using `zip` or AWS SAM).
+### Setup:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Hooks include:
+
+- `black` (auto formatter)
+- `flake8` (linter)
+- `end-of-file-fixer`
+- `trailing-whitespace`
+- `pyupgrade`
+
+Run manually on all files:
+
+```bash
+pre-commit run --all-files
+```
+
+---
+
+## 🔄 GitHub Actions (CI)
+
+Included in `.github/workflows/test.yml`.
+
+Automatically:
+
+- Installs dependencies
+- Lints code with `flake8`
+- Runs all tests on push or pull request
+
+You’ll see results in the **Actions** tab on GitHub after pushing your changes.
+
+---
+
+## 🐳 Docker (Optional)
+
+To build and run in a container:
+
+```bash
+docker build -t my-python-app .
+docker run -p 8000:8000 my-python-app
+```
+
+---
+
+## 📦 Deployment: AWS Lambda
+
+1. Put your handler in `services/lambda/handler.py`
+2. Package with your dependencies (e.g. via `zip`, SAM, or Serverless Framework)
+3. Deploy to AWS Lambda as usual
+
+You can separate core logic into `core/` for reuse.
 
 ---
 
 ## 📁 Config Management
 
-Use the files in `configs/` to define different environments:
+Environment-specific configs live in the `configs/` folder:
 
-- `base_config.py` — Shared default settings
-- `dev_config.py` — Development overrides
-- `prod_config.py` — Production config
+- `base_config.py` — shared defaults
+- `dev_config.py` — development overrides
+- `prod_config.py` — production config
 
-You can load configs in your app like this:
+Config loading example:
 
 ```python
 from configs.dev_config import Config
+print(Config.DEBUG)
 ```
+
+`.env` selects which config file to use.
+
+---
+
+## 📂 Keeping Folders Tracked in Git
+
+Git doesn't track empty folders by default.
+
+We use `.gitkeep` files inside each empty folder so they exist in the repo. You can delete them once you start adding real files.
+
+---
+
+## 💻 Makefile (Optional Dev Commands)
+
+You can use `make` commands like:
+
+```bash
+make install   # Install dependencies
+make run       # Run the app
+make test      # Run tests
+```
+
+(Or use `tasks.py` if you prefer Python-based automation.)
 
 ---
 
 ## 🙌 Contributing
 
-If you're improving this template, feel free to fork and PR with suggestions or changes.
+Feel free to fork, improve, and PR — contributions are welcome!
 
 ---
 
@@ -131,6 +228,7 @@ MIT – do what you want, but give credit. 😉
 
 ## 🧙 Final Tips
 
-- Keep your core logic in `core/` — it's reusable, testable, and framework-agnostic
-- Use `infrastructure/` for anything that talks to the outside world (web servers, AWS, DBs)
-- Use `services/` for plugging in new endpoints or business flows
+- Keep business logic inside `core/` for full framework independence
+- Use `infrastructure/` for integrations like AWS, databases, etc.
+- Use `services/` to plug in new flows easily without touching core
+- Always test your app locally before deploying to Lambda

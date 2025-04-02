@@ -19,7 +19,8 @@ app = FastAPI(title="Python Clean Template")
 
 # Auto-load services from services/web/
 def auto_register_services(app):
-    service_files = glob.glob("services/web/*.py")
+    
+    service_files = glob.glob("src/services/web/*.py")
     for path in service_files:
         module_name = os.path.splitext(os.path.basename(path))[0]
         spec = importlib.util.spec_from_file_location(module_name, path)
@@ -28,7 +29,8 @@ def auto_register_services(app):
         if hasattr(module, "register_routes"):
             module.register_routes(app)
             print(f"✅ Loaded: {module_name}")
-
+            
+            
 auto_register_services(app)
 
 # Optional: Run with `python main.py`

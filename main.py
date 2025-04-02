@@ -10,9 +10,9 @@ load_dotenv()
 # Load environment config
 ENV = os.getenv("ENV", "dev")
 if ENV == "prod":
-    from configs.prod_config import Config
+    from src.configs.prod_config import Config
 else:
-    from configs.dev_config import Config
+    from src.configs.dev_config import Config
 
 # Create FastAPI app
 app = FastAPI(title="Python Clean Template")

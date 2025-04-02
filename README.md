@@ -1,4 +1,3 @@
-
 # 🐍 Python Clean Architecture Template
 
 This is a plug-and-play Python project template that follows **SOLID principles** and supports deployment as either a **web service** (e.g., with FastAPI) or an **AWS Lambda function**. Just drop your service files into the right folder, and you're good to go.
@@ -46,91 +45,84 @@ ENV=dev
 
 ---
 
-## 🧠 Architecture Overview
+## 🧠 Project Structure
 
 ```
 .
-├── .github/workflows/    # GitHub Actions (CI/CD)
-├── configs/              # Configs (dev/prod/env)
-├── core/                 # Interfaces, business logic, models
-├── infrastructure/       # AWS, web framework integrations
-├── services/             # Plug-and-play service files
-│   ├── web/              # Drop-in web API logic here
-│   └── lambda/           # Lambda entrypoint
-├── main.py               # Web app entrypoint (auto-loads services)
-├── tests/                # Unit tests
-├── .env.example          # Sample environment file
-├── .pre-commit-config.yaml  # Auto-format/lint hooks
-├── Dockerfile            # Optional container support
-└── Makefile              # Dev command shortcuts
+├── .github/workflows/        # GitHub Actions (CI/CD)
+├── .env.example              # Environment variable example
+├── Dockerfile                # Optional Docker support
+├── main.py                   # App entry point (calls src/)
+├── requirements.txt
+├── tests/                    # Unit tests
+├── .pre-commit-config.yaml   # Code formatting/lint hooks
+└── src/                      # 📦 Application code lives here
+    ├── configs/              # Environment-specific config files
+    ├── core/                 # Interfaces, models, and use cases (pure logic)
+    ├── infrastructure/       # External integrations (e.g., AWS, web frameworks)
+    ├── services/             # 🔌 Web/Lambda services (plug-and-play)
+    ├── utils/                # ✅ Reusable helpers (logger, date formatter, etc.)
+    └── __init__.py
 ```
 
-- **SOLID Principles:** Core logic is modular and decoupled from frameworks
-- **Plug-and-Play:** Just drop a service into `services/web/` and it’ll be auto-registered
-- **Platform-Ready:** Works as both a local app and an AWS Lambda
+- **SOLID Principles:** Code is modular, reusable, and framework-independent
+- **Plug-and-Play:** Just drop a file into `services/web/` and it auto-registers
+- **Platform-Ready:** Can run locally or be deployed to AWS Lambda
 
 ---
 
 ## 🔌 How Services Are Loaded
 
-### Web Services (`services/web/`)
+### Web Services (`src/services/web/`)
 
-Each file should have a `register_routes(app)` function:
+Each service module should define a `register_routes(app)` function.
 
 ```python
-# services/web/my_api_service.py
+# src/services/web/my_api_service.py
 def register_routes(app):
     @app.get("/hello")
     def hello():
         return {"message": "Hello from my service!"}
 ```
 
-When you run `main.py`, all `.py` files in `services/web/` are discovered and registered automatically.
+These files are automatically discovered and registered when `main.py` runs.
 
 ---
 
-## 🛠️ Run Locally (Web Server)
-
-Make sure you’ve added at least one service in `services/web/`, then run:
+## 🛠️ Run Locally
 
 ```bash
 python main.py
 ```
 
-The app will launch using FastAPI with routes auto-registered from your services.
+Your FastAPI server will launch and include all registered services.
 
 ---
 
 ## 🧪 Testing
 
-Tests go in the `tests/` folder. To run:
-
 ```bash
 pytest
 ```
 
+Tests live in the `tests/` folder.
+
 ---
 
 ## 🧼 Pre-Commit Hooks
-
-This template uses [`pre-commit`](https://pre-commit.com/) to keep code clean.
-
-### Setup:
 
 ```bash
 pip install pre-commit
 pre-commit install
 ```
 
-Hooks include:
+Hooks included:
 
-- `black` (auto formatter)
-- `flake8` (linter)
-- `end-of-file-fixer`
-- `trailing-whitespace`
-- `pyupgrade`
+- `black` – format your code
+- `flake8` – find potential issues
+- `trailing-whitespace`, `end-of-file-fixer`, etc.
 
-Run manually on all files:
+Run manually:
 
 ```bash
 pre-commit run --all-files
@@ -140,21 +132,11 @@ pre-commit run --all-files
 
 ## 🔄 GitHub Actions (CI)
 
-Included in `.github/workflows/test.yml`.
-
-Automatically:
-
-- Installs dependencies
-- Lints code with `flake8`
-- Runs all tests on push or pull request
-
-You’ll see results in the **Actions** tab on GitHub after pushing your changes.
+Located in `.github/workflows/test.yml`. Automatically lints and tests your code on every push or pull request.
 
 ---
 
 ## 🐳 Docker (Optional)
-
-To build and run in a container:
 
 ```bash
 docker build -t my-python-app .
@@ -165,58 +147,46 @@ docker run -p 8000:8000 my-python-app
 
 ## 📦 Deployment: AWS Lambda
 
-1. Put your handler in `services/lambda/handler.py`
-2. Package with your dependencies (e.g. via `zip`, SAM, or Serverless Framework)
-3. Deploy to AWS Lambda as usual
-
-You can separate core logic into `core/` for reuse.
+- Put handler logic in `src/services/lambda/handler.py`
+- Package with your dependencies
+- Deploy using AWS tools (SAM, Serverless Framework, etc.)
 
 ---
 
 ## 📁 Config Management
 
-Environment-specific configs live in the `configs/` folder:
+Use files in `src/configs/`:
 
 - `base_config.py` — shared defaults
-- `dev_config.py` — development overrides
-- `prod_config.py` — production config
+- `dev_config.py` — dev settings
+- `prod_config.py` — production settings
 
-Config loading example:
+Environment is set via `.env`.
 
 ```python
-from configs.dev_config import Config
-print(Config.DEBUG)
+from src.configs.dev_config import Config
 ```
-
-`.env` selects which config file to use.
 
 ---
 
-## 📂 Keeping Folders Tracked in Git
+## 🧰 Utilities (`src/utils/`)
 
-Git doesn't track empty folders by default.
+The `utils/` folder contains small reusable tools to help your development flow:
 
-We use `.gitkeep` files inside each empty folder so they exist in the repo. You can delete them once you start adding real files.
+- `logger.py` — central logging setup
+- `dates.py` — handy datetime formatters and parsers
 
----
+You can import and reuse them anywhere in the project:
 
-## 💻 Makefile (Optional Dev Commands)
-
-You can use `make` commands like:
-
-```bash
-make install   # Install dependencies
-make run       # Run the app
-make test      # Run tests
+```python
+from src.utils.dates import format_date
 ```
-
-(Or use `tasks.py` if you prefer Python-based automation.)
 
 ---
 
 ## 🙌 Contributing
 
-Feel free to fork, improve, and PR — contributions are welcome!
+Feel free to fork, suggest improvements, or open PRs.
 
 ---
 
@@ -228,7 +198,7 @@ MIT – do what you want, but give credit. 😉
 
 ## 🧙 Final Tips
 
-- Keep business logic inside `core/` for full framework independence
-- Use `infrastructure/` for integrations like AWS, databases, etc.
-- Use `services/` to plug in new flows easily without touching core
-- Always test your app locally before deploying to Lambda
+- Keep logic in `core/`, isolated from frameworks
+- Add new features by dropping service files in `services/`
+- Use `utils/` for common helpers shared across services
+- Use `configs/` to adapt behavior for different environments

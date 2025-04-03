@@ -1,0 +1,57 @@
+name: 🐞 Bug Report
+description: Report a bug or unexpected behavior in the template
+title: "[BUG] "
+labels: [bug]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out this form to help us fix the issue quickly and accurately.
+
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug
+      placeholder: e.g., The auto-loader doesn't detect files in subfolders
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide a step-by-step guide to reproduce the issue
+      placeholder: |
+        1. Go to '...'
+        2. Run '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: Expected Behavior
+      placeholder: e.g., The app should register all services automatically
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment Info
+      placeholder: e.g., Windows 11, Python 3.10, FastAPI 0.100
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Traceback
+      description: Paste any error messages or console output here
+      render: shell
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Paste screenshots or drag-and-drop images here to show the bug

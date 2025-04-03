@@ -1,0 +1,37 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: [enhancement]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us understand your idea by filling out the form below.
+
+  - type: input
+    id: description
+    attributes:
+      label: What feature do you want?
+      placeholder: e.g., Auto-register routes from nested folders
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why is it useful?
+      placeholder: e.g., I want to organize services by domain but keep them auto-loaded
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Suggested Implementation
+      description: (Optional) How do you envision this feature being built?
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: UI Mockups / Diagrams
+      description: (Optional) Add screenshots, diagrams or links here

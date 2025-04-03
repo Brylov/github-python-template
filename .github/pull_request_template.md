@@ -3,6 +3,8 @@
 
 This pull request introduces a set of changes proposed for review and integration.
 
+Please review the [contributing guidelines](CONTRIBUTING.md) before submitting.
+
 ---
 
 ## General Checklist
